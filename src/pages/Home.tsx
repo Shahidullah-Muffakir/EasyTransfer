@@ -136,7 +136,7 @@ const Home = () => {
             <Text color="blue.700">
               To post a money transfer request, please{" "}
               <Button as={RouterLink} to="/login" variant="link" colorScheme="blue" fontWeight="bold">
-                login with your phone number
+                login
               </Button>
               . This helps us prevent spam and ensure a safe community.
             </Text>
