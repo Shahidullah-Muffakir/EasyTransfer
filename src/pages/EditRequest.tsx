@@ -138,7 +138,7 @@ const EditRequest = () => {
         <form onSubmit={handleSubmit}>
           <VStack spacing={4}>
             <FormControl isRequired>
-              <FormLabel>Amount (₹)</FormLabel>
+              <FormLabel>Amount</FormLabel>
               <Input
                 type="number"
                 value={amount}

@@ -99,12 +99,12 @@ const Home = () => {
   return (
     <Box>
       <HStack justify="space-between" mb={6}>
-        <Heading size="lg">Money Transfer Requests</Heading>
-        {user && (
+        <Heading size="lg">Send & Receive Money</Heading>
+        {/* {user && (
           <Button as={RouterLink} to="/create" colorScheme="blue">
             Create Request
           </Button>
-        )}
+        )} */}
       </HStack>
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
@@ -184,7 +184,6 @@ const Home = () => {
             <Text>
               {requestToDelete?.fromCountry} → {requestToDelete?.toCountry}
             </Text>
-            <Text>To: {requestToDelete?.toCity}</Text>
           </ModalBody>
           <Box p={4} pt={0}>
             <Button colorScheme="red" mr={3} onClick={handleDeleteConfirm}>

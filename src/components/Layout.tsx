@@ -18,7 +18,7 @@ const Layout = ({ children }: LayoutProps) => {
           <Flex justify="space-between" align="center">
             <RouterLink to="/">
               <Box fontSize="xl" fontWeight="bold">
-                Money Transfer
+              AfghanLink
               </Box>
             </RouterLink>
             <Flex align="center" gap={4}>
