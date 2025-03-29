@@ -1,4 +1,4 @@
-# EasyTransfer - Money Transfer Platform
+# SimpleTransfer - Money Transfer Platform
 
 A modern web application that facilitates money transfers between users, built with React, TypeScript, and Firebase.
 
