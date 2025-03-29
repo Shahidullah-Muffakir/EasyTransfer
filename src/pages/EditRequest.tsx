@@ -19,6 +19,7 @@ interface TransferRequest {
   id: string;
   amount: number;
   fromCountry: string;
+  fromCity: string;
   toCountry: string;
   toCity: string;
   phoneNumber: string;
@@ -29,6 +30,7 @@ interface TransferRequest {
 const EditRequest = () => {
   const { id } = useParams<{ id: string }>();
   const [amount, setAmount] = useState('');
+  const [fromCity, setFromCity] = useState('');
   const [fromCountry, setFromCountry] = useState('');
   const [toCountry, setToCountry] = useState('');
   const [toCity, setToCity] = useState('');
@@ -64,6 +66,7 @@ const EditRequest = () => {
           setFromCountry(data.fromCountry);
           setToCountry(data.toCountry);
           setToCity(data.toCity);
+          setFromCity(data.fromCity);
         } else {
           toast({
             title: 'Error',
@@ -159,6 +162,16 @@ const EditRequest = () => {
                 <option value="India">India</option>
                 <option value="Afghanistan">Afghanistan</option>
               </Select>
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel>From City</FormLabel>
+              <Input
+                type="text"
+                value={fromCity}
+                onChange={(e) => setFromCity(e.target.value)}
+                placeholder="Enter city name"
+                disabled={isSubmitting}
+              />
             </FormControl>
 
             <FormControl isRequired>

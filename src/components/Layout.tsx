@@ -1,7 +1,14 @@
-import { Box, Container, Flex, useColorMode, IconButton, Button } from '@chakra-ui/react';
-import { SunIcon, MoonIcon } from '@chakra-ui/icons';
-import { Link as RouterLink } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import {
+  Box,
+  Container,
+  Flex,
+  useColorMode,
+  IconButton,
+  Button,
+} from "@chakra-ui/react";
+import { SunIcon, MoonIcon } from "@chakra-ui/icons";
+import { Link as RouterLink } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -18,29 +25,60 @@ const Layout = ({ children }: LayoutProps) => {
           <Flex justify="space-between" align="center">
             <RouterLink to="/">
               <Box fontSize="xl" fontWeight="bold">
-              AfghanLink
+                AfghanLink
               </Box>
             </RouterLink>
             <Flex align="center" gap={4}>
               <IconButton
-                aria-label={`Switch to ${colorMode === 'light' ? 'dark' : 'light'} mode`}
-                icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
+                aria-label={`Switch to ${
+                  colorMode === "light" ? "dark" : "light"
+                } mode`}
+                icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
                 onClick={toggleColorMode}
                 variant="ghost"
+                display={{ base: "none", md: "flex" }} 
               />
               {user ? (
-                <>
+                <Flex
+                  direction={{ base: "column", md: "row" }}
+                  gap={2}
+                  align="center"
+                >
                   <Button as={RouterLink} to="/create" colorScheme="blue">
                     Create Request
                   </Button>
-                  <Button onClick={signOut} variant="ghost">
-                    Sign Out
-                  </Button>
-                </>
+                  <Flex align="center" gap={1}>
+                    <IconButton
+                      aria-label={`Switch to ${
+                        colorMode === "light" ? "dark" : "light"
+                      } mode`}
+                      icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+                      onClick={toggleColorMode}
+                      variant="ghost"
+                      display={{ base: "flex", md: "none" }} 
+
+                    />
+                    <Button onClick={signOut} variant="ghost">
+                      Sign Out
+                    </Button>
+                  </Flex>
+                </Flex>
               ) : (
-                <Button as={RouterLink} to="/login" colorScheme="blue">
-                  Sign In
-                </Button>
+                <Flex align="center" gap={4}>
+                  <IconButton
+                    aria-label={`Switch to ${
+                      colorMode === "light" ? "dark" : "light"
+                    } mode`}
+                    icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+                    onClick={toggleColorMode}
+                    variant="ghost"
+                    display={{ base: "flex", md: "none" }} 
+
+                  />
+                  <Button as={RouterLink} to="/login" colorScheme="blue">
+                    Sign In
+                  </Button>
+                </Flex>
               )}
             </Flex>
           </Flex>
@@ -53,4 +91,4 @@ const Layout = ({ children }: LayoutProps) => {
   );
 };
 
-export default Layout; 
+export default Layout;
