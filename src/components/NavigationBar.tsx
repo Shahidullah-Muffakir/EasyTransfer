@@ -193,7 +193,7 @@ const NavigationBar = () => {
             to="/"
             _hover={{ color: "brand.500" }}
           >
-            MoneyTransfer
+            EasyTransfer 💸
           </Text>
         </Flex>
 

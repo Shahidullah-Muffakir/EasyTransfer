@@ -10,6 +10,10 @@ import {
   Heading,
   Select,
   Text,
+  Card,
+  CardBody,
+  Container,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
@@ -49,6 +53,7 @@ const EditRequest = () => {
   const { user } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const cardBg = useColorModeValue("white", "gray.800");
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -151,7 +156,10 @@ const EditRequest = () => {
   }
 
   return (
-    <Box maxW="container.md" mx="auto" p={4}>
+    <Box minH="100vh"  py={10} minW={'100vw'} display={'flex'} alignItems={'center'} justifyContent={'center'} p={10}>
+           <Container maxW="container.sm">
+        <Card bg={cardBg} boxShadow="lg">
+          <CardBody p={8}>
       <VStack spacing={8} align="stretch">
         <Heading>Edit Transfer Request</Heading>
         <form onSubmit={handleSubmit}>
@@ -222,14 +230,7 @@ const EditRequest = () => {
               />
             </FormControl>
 
-            <FormControl isRequired>
-              <FormLabel>Phone Number</FormLabel>
-              <Input
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="Enter your phone number"
-              />
-            </FormControl>
+            
 
             <Button
               type="submit"
@@ -242,6 +243,10 @@ const EditRequest = () => {
           </VStack>
         </form>
       </VStack>
+    </CardBody>
+  </Card>
+  </Container>
+
     </Box>
   );
 };
