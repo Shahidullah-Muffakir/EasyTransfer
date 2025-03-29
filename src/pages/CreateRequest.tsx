@@ -14,6 +14,7 @@ import {
   Card,
   CardBody,
   Container,
+  FormErrorMessage,
 } from '@chakra-ui/react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -45,6 +46,7 @@ const CreateRequest = () => {
   const [toCity, setToCity] = useState('');
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
   const toast = useToast();
@@ -55,8 +57,62 @@ const CreateRequest = () => {
   const textColor = useColorModeValue("gray.600", "gray.300");
   const headingColor = useColorModeValue("gray.700", "white");
 
+  const validatePhoneNumber = (number: string): boolean => {
+    // Remove all spaces
+    const cleanNumber = number.replace(/\s/g, "");
+    
+    // Basic format validation
+    if (!/^\+?[1-9]\d{1,14}$/.test(cleanNumber)) {
+      setError("Please enter a valid phone number (e.g., +1234567890)");
+      return false;
+    }
+
+    // Additional validation for specific formats
+    if (cleanNumber.startsWith("+")) {
+      // International format
+      if (!/^\+[1-9]\d{1,14}$/.test(cleanNumber)) {
+        setError("Invalid international phone number format");
+        return false;
+      }
+    } else {
+      // National format
+      if (!/^[1-9]\d{1,14}$/.test(cleanNumber)) {
+        setError("Invalid phone number format");
+        return false;
+      }
+    }
+
+    setError("");
+    return true;
+  };
+
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const value = e.target.value;
+    // Only allow numbers, +, and -
+    if (/^[+\d-]*$/.test(value)) {
+      setPhoneNumber(value);
+      setError("");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validatePhoneNumber(phoneNumber)) {
+      return;
+    }
+
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid amount",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     if (!user) {
       toast({
         title: "Error",
@@ -70,6 +126,8 @@ const CreateRequest = () => {
 
     try {
       setIsSubmitting(true);
+      const formattedNumber = phoneNumber.startsWith("+") ? phoneNumber : `+${phoneNumber}`;
+      
       const request: TransferRequest = {
         amount: parseFloat(amount),
         currency,
@@ -78,7 +136,7 @@ const CreateRequest = () => {
         toCountry,
         toCity,
         name,
-        phoneNumber: user.phoneNumber || "",
+        phoneNumber: formattedNumber,
         createdAt: new Date(),
         userId: user.uid,
       };
@@ -96,7 +154,7 @@ const CreateRequest = () => {
       console.error("Error creating request:", error);
       toast({
         title: "Error",
-        description: "Failed to create transfer request",
+        description: "Failed to create transfer request. Please try again.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -107,26 +165,7 @@ const CreateRequest = () => {
   };
 
   if (isSubmitting) {
-    return (
-      <Box minH="100vh" bg={bgColor} py={10}>
-        <Container maxW="container.sm">
-          <Card bg={cardBg} boxShadow="lg">
-            <CardBody p={8}>
-              <VStack spacing={6} align="stretch">
-                <Box textAlign="center">
-                  <Heading color={headingColor} mb={2}>
-                    Creating Request...
-                  </Heading>
-                  <Text color={textColor}>
-                    Please wait while we process your request
-                  </Text>
-                </Box>
-              </VStack>
-            </CardBody>
-          </Card>
-        </Container>
-      </Box>
-    );
+    return <LoadingState message="Creating transfer request..." />;
   }
 
   return (
@@ -134,13 +173,13 @@ const CreateRequest = () => {
       <Container maxW="container.sm">
         <Card bg={cardBg} boxShadow="lg">
           <CardBody p={8}>
-            <VStack spacing={8} align="stretch">
+            <VStack spacing={6} align="stretch">
               <Box textAlign="center">
                 <Heading color={headingColor} mb={2}>
                   Create Transfer Request
                 </Heading>
                 <Text color={textColor}>
-                  Fill in the details for your money transfer request
+                  Enter the amount and your phone number for the transfer
                 </Text>
               </Box>
 
@@ -154,6 +193,8 @@ const CreateRequest = () => {
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
                       size="lg"
+                      min="1"
+                      step="0.01"
                     />
                   </FormControl>
 
@@ -211,11 +252,26 @@ const CreateRequest = () => {
                     />
                   </FormControl>
 
+                  <FormControl isInvalid={!!error}>
+                    <FormLabel>Phone Number</FormLabel>
+                    <Input
+                      type="tel"
+                      placeholder="Enter your phone number (e.g., +1234567890)"
+                      value={phoneNumber}
+                      onChange={handlePhoneNumberChange}
+                      size="lg"
+                      maxLength={15}
+                    />
+                    <FormErrorMessage>{error}</FormErrorMessage>
+                  </FormControl>
+
                   <Button
                     type="submit"
                     colorScheme="brand"
                     size="lg"
+                    width="full"
                     isLoading={isSubmitting}
+                    isDisabled={!amount || !phoneNumber || !!error}
                   >
                     Create Request
                   </Button>

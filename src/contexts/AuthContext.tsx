@@ -1,22 +1,17 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { 
-  User as FirebaseUser,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
+  User,
+  GoogleAuthProvider,
+  signInWithPopup,
   signOut as firebaseSignOut,
   onAuthStateChanged
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
-interface User {
-  uid: string;
-  phoneNumber: string | null;
-}
-
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signIn: (phoneNumber: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -39,44 +34,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUser({
-          uid: firebaseUser.uid,
-          phoneNumber: firebaseUser.phoneNumber,
-        });
-      } else {
-        setUser(null);
-      }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
       setLoading(false);
     });
 
     return unsubscribe;
   }, []);
 
-  const signIn = async (phoneNumber: string) => {
+  const signInWithGoogle = async () => {
     try {
-      // Clear any existing reCAPTCHA
-      const container = document.getElementById('recaptcha-container');
-      if (container) {
-        container.innerHTML = '';
-      }
-
-      // Create new reCAPTCHA instance
-      const appVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible',
-        callback: () => {
-          // reCAPTCHA solved
-        },
-      });
-
-      const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`;
-      const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
-      
-      // Store the confirmation result in the window object for later use
-      (window as any).confirmationResult = confirmationResult;
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
     } catch (error) {
-      console.error('Error signing in:', error);
+      console.error('Error signing in with Google:', error);
       throw error;
     }
   };
@@ -93,7 +64,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const value = {
     user,
     loading,
-    signIn,
+    signInWithGoogle,
     logout,
   };
 
