@@ -127,7 +127,7 @@ const Home = () => {
     <Box>
       <VStack spacing={8} align="stretch">
         <HStack justify="space-between">
-          <Heading size="lg" color={headingColor}>Send & Receive Money</Heading>
+          <Heading style={{padding:10, paddingBottom:0}} size="lg" color={headingColor}>Send & Receive Money</Heading>
         </HStack>
 
         {!user && (

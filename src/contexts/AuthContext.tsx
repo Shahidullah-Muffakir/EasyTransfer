@@ -1,21 +1,26 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { 
-  User,
+  User as FirebaseUser,
   RecaptchaVerifier,
   signInWithPhoneNumber,
   signOut as firebaseSignOut,
-  ConfirmationResult
+  onAuthStateChanged
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
+
+interface User {
+  uid: string;
+  phoneNumber: string | null;
+}
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signIn: (phoneNumber: string) => Promise<ConfirmationResult>;
-  signOut: () => Promise<void>;
+  signIn: (phoneNumber: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -25,13 +30,24 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          uid: firebaseUser.uid,
+          phoneNumber: firebaseUser.phoneNumber,
+        });
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
@@ -47,16 +63,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       });
 
-      const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-      // The confirmation result will be handled in the component
-      return confirmationResult;
+      const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`;
+      const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
+      
+      // Store the confirmation result in the window object for later use
+      (window as any).confirmationResult = confirmationResult;
     } catch (error) {
       console.error('Error signing in:', error);
       throw error;
     }
   };
 
-  const signOut = async () => {
+  const logout = async () => {
     try {
       await firebaseSignOut(auth);
     } catch (error) {
@@ -69,7 +87,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     loading,
     signIn,
-    signOut,
+    logout,
   };
 
   return (
