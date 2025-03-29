@@ -91,8 +91,14 @@ const Login = () => {
       });
     } catch (error: any) {
       console.error("Error sending verification code:", error);
-      if (error?.error?.message?.includes("INVALID_PHONE_NUMBER")) {
+      
+      // Handle specific Firebase errors
+      if (error?.code === 'auth/invalid-phone-number') {
         setError("Invalid phone number format. Please check and try again.");
+      } else if (error?.code === 'auth/too-many-requests') {
+        setError("Too many attempts. Please try again later.");
+      } else if (error?.code === 'auth/quota-exceeded') {
+        setError("Daily quota exceeded. Please try again tomorrow.");
       } else {
         toast({
           title: "Error",
