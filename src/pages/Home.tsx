@@ -36,6 +36,7 @@ import { db } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { Link as RouterLink } from "react-router-dom";
 import { countries } from "../data/countries";
+import LoadingState from "../components/LoadingState";
 
 interface TransferRequest {
   id: string;
@@ -53,6 +54,7 @@ interface TransferRequest {
 
 const Home = () => {
   const [requests, setRequests] = useState<TransferRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -78,6 +80,7 @@ const Home = () => {
       })) as TransferRequest[];
 
       setRequests(newRequests);
+      setIsLoading(false);
     });
 
     return () => unsubscribe();
@@ -115,6 +118,10 @@ const Home = () => {
   const getCountryInfo = (code: string) => {
     return countries.find((country) => country.code === code) || { name: code, flag: "" };
   };
+
+  if (isLoading) {
+    return <LoadingState message="Loading transfer requests..." />;
+  }
 
   return (
     <Box>

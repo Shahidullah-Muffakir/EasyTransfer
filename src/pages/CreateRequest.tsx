@@ -15,6 +15,7 @@ import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import CountrySelector from '../components/CountrySelector';
+import LoadingState from '../components/LoadingState';
 import { Country } from '../data/countries';
 
 const CreateRequest = () => {
@@ -71,6 +72,10 @@ const CreateRequest = () => {
       setIsSubmitting(false);
     }
   };
+
+  if (isSubmitting) {
+    return <LoadingState message="Creating transfer request..." />;
+  }
 
   return (
     <Box maxW="container.md" mx="auto" p={4}>

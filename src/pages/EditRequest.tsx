@@ -9,12 +9,14 @@ import {
   useToast,
   Heading,
   Select,
+  Text,
 } from "@chakra-ui/react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
 import CountrySelector from "../components/CountrySelector";
+import LoadingState from "../components/LoadingState";
 import { Country } from "../data/countries";
 
 interface TransferRequest {
@@ -135,11 +137,17 @@ const EditRequest = () => {
   };
 
   if (isLoading) {
-    return <Box>Loading...</Box>;
+    return <LoadingState message="Loading transfer request details..." />;
   }
 
   if (!request || request.userId !== user?.uid) {
-    return <Box>You are not authorized to edit this request.</Box>;
+    return (
+      <Box p={4} textAlign="center">
+        <Text fontSize="xl" color="red.500">
+          You are not authorized to edit this request.
+        </Text>
+      </Box>
+    );
   }
 
   return (
