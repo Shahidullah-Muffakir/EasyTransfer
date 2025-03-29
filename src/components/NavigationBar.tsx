@@ -219,7 +219,7 @@ const NavigationBar = () => {
             to="/"
             _hover={{ color: "brand.500" }}
           >
-            EasyTransfer 
+            SimpleTransfer 
           </Text>
         </Flex>
 
