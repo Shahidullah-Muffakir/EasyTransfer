@@ -12,6 +12,7 @@ import {
   useColorModeValue,
   Card,
   CardBody,
+  FormErrorMessage,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
@@ -22,6 +23,7 @@ const Login = () => {
   const [verificationCode, setVerificationCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
+  const [error, setError] = useState("");
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
@@ -31,10 +33,54 @@ const Login = () => {
   const textColor = useColorModeValue("gray.600", "gray.300");
   const headingColor = useColorModeValue("gray.700", "white");
 
+  const validatePhoneNumber = (number: string): boolean => {
+    // Remove all spaces
+    const cleanNumber = number.replace(/\s/g, "");
+    
+    // Basic format validation
+    if (!/^\+?[1-9]\d{1,14}$/.test(cleanNumber)) {
+      setError("Please enter a valid phone number (e.g., +1234567890)");
+      return false;
+    }
+
+    // Additional validation for specific formats
+    if (cleanNumber.startsWith("+")) {
+      // International format
+      if (!/^\+[1-9]\d{1,14}$/.test(cleanNumber)) {
+        setError("Invalid international phone number format");
+        return false;
+      }
+    } else {
+      // National format
+      if (!/^[1-9]\d{1,14}$/.test(cleanNumber)) {
+        setError("Invalid phone number format");
+        return false;
+      }
+    }
+
+    setError("");
+    return true;
+  };
+
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const value = e.target.value;
+    // Only allow numbers, +, and -
+    if (/^[+\d-]*$/.test(value)) {
+      setPhoneNumber(value);
+      setError("");
+    }
+  };
+
   const handleSendCode = async () => {
+    if (!validatePhoneNumber(phoneNumber)) {
+      return;
+    }
+
     try {
       setIsLoading(true);
-      await signIn(phoneNumber);
+      // Format the phone number before sending
+      const formattedNumber = phoneNumber.startsWith("+") ? phoneNumber : `+${phoneNumber}`;
+      await signIn(formattedNumber);
       setShowVerification(true);
       toast({
         title: "Verification code sent",
@@ -43,15 +89,19 @@ const Login = () => {
         duration: 5000,
         isClosable: true,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending verification code:", error);
-      toast({
-        title: "Error",
-        description: "Failed to send verification code. Please try again.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      if (error?.error?.message?.includes("INVALID_PHONE_NUMBER")) {
+        setError("Invalid phone number format. Please check and try again.");
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to send verification code. Please try again.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -104,15 +154,17 @@ const Login = () => {
               </Box>
 
               {!showVerification ? (
-                <FormControl>
+                <FormControl isInvalid={!!error}>
                   <FormLabel>Phone Number</FormLabel>
                   <Input
                     type="tel"
-                    placeholder="Enter your phone number"
+                    placeholder="Enter your phone number (e.g., +1234567890)"
                     value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onChange={handlePhoneNumberChange}
                     size="lg"
+                    maxLength={15}
                   />
+                  <FormErrorMessage>{error}</FormErrorMessage>
                   <Button
                     mt={4}
                     colorScheme="brand"
@@ -120,6 +172,7 @@ const Login = () => {
                     onClick={handleSendCode}
                     isLoading={isLoading}
                     size="lg"
+                    isDisabled={!phoneNumber || !!error}
                   >
                     Send Verification Code
                   </Button>
@@ -133,6 +186,7 @@ const Login = () => {
                     value={verificationCode}
                     onChange={(e) => setVerificationCode(e.target.value)}
                     size="lg"
+                    maxLength={6}
                   />
                   <Button
                     mt={4}
@@ -141,6 +195,7 @@ const Login = () => {
                     onClick={handleVerifyCode}
                     isLoading={isLoading}
                     size="lg"
+                    isDisabled={!verificationCode}
                   >
                     Verify Code
                   </Button>
