@@ -89,7 +89,7 @@ const Login = () => {
   };
 
   return (
-    <Box minH="100vh" bg={bgColor} py={10}>
+    <Box minH="100vh" bg={bgColor} py={10} minW='100vw'>
       <Container maxW="container.sm">
         <Card bg={cardBg} boxShadow="lg">
           <CardBody p={8}>

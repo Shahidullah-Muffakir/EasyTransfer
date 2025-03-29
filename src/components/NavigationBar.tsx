@@ -32,6 +32,11 @@ const NavigationBar = () => {
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const textColor = useColorModeValue("gray.600", "gray.300");
   const headingColor = useColorModeValue("gray.700", "white");
+  const mobileMenuBg = useColorModeValue("white", "gray.800");
+  const mobileButtonBg = useColorModeValue("white", "gray.800");
+  const mobileButtonHoverBg = useColorModeValue("gray.50", "gray.700");
+  const mobileButtonActiveBg = useColorModeValue("gray.100", "gray.600");
+  const mobileButtonBorder = useColorModeValue("gray.200", "gray.700");
 
   const handleLogout = async () => {
     try {
@@ -62,14 +67,14 @@ const NavigationBar = () => {
       top="60px"
       left="0"
       right="0"
-      bg={bgColor}
+      bg={mobileMenuBg}
       borderBottom="1px"
       borderColor={borderColor}
       p={4}
-      spacing={4}
+      spacing={3}
       zIndex={100}
+      boxShadow="md"
     >
-      {/* <NavLink to="/">Home</NavLink> */}
       {user ? (
         <>
           <Button
@@ -78,15 +83,39 @@ const NavigationBar = () => {
             leftIcon={<AddIcon />}
             colorScheme="brand"
             width="full"
+            size="lg"
+            height="48px"
+            fontSize="md"
+            fontWeight="medium"
+            _hover={{
+              transform: "translateY(-1px)",
+              boxShadow: "md",
+            }}
+            _active={{
+              transform: "translateY(0)",
+            }}
           >
             Create Request
           </Button>
           <Menu>
             <MenuButton
               as={Button}
-              variant="ghost"
+              variant="outline"
               width="full"
+              height="48px"
+              fontSize="md"
+              fontWeight="medium"
+              bg={mobileButtonBg}
+              borderColor={mobileButtonBorder}
+              _hover={{ 
+                bg: mobileButtonHoverBg,
+                borderColor: "brand.500",
+                color: "brand.500"
+              }}
+              _active={{ bg: mobileButtonActiveBg }}
               leftIcon={<Avatar size="sm" name={user.phoneNumber || undefined} />}
+              justifyContent="flex-start"
+              px={4}
             >
               {user.phoneNumber || "User"}
             </MenuButton>
@@ -96,7 +125,23 @@ const NavigationBar = () => {
           </Menu>
         </>
       ) : (
-        <Button as={RouterLink} to="/login" colorScheme="brand" width="full">
+        <Button
+          as={RouterLink}
+          to="/login"
+          colorScheme="brand"
+          width="full"
+          size="lg"
+          height="48px"
+          fontSize="md"
+          fontWeight="medium"
+          _hover={{
+            transform: "translateY(-1px)",
+            boxShadow: "md",
+          }}
+          _active={{
+            transform: "translateY(0)",
+          }}
+        >
           Login
         </Button>
       )}
@@ -104,8 +149,19 @@ const NavigationBar = () => {
         aria-label="Toggle color mode"
         icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
         onClick={toggleColorMode}
-        variant="ghost"
+        variant="outline"
         width="full"
+        height="48px"
+        fontSize="md"
+        fontWeight="medium"
+        bg={mobileButtonBg}
+        borderColor={mobileButtonBorder}
+        _hover={{ 
+          bg: mobileButtonHoverBg,
+          borderColor: "brand.500",
+          color: "brand.500"
+        }}
+        _active={{ bg: mobileButtonActiveBg }}
       />
     </VStack>
   );
@@ -143,7 +199,6 @@ const NavigationBar = () => {
 
         {/* Desktop Navigation */}
         <HStack spacing={4} display={{ base: "none", md: "flex" }}>
-          {/* <NavLink to="/">Home</NavLink> */}
           {user ? (
             <>
               <Button

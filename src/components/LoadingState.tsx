@@ -17,7 +17,7 @@ const LoadingState = ({ message = "Loading..." }: LoadingStateProps) => {
   const textColor = useColorModeValue("gray.600", "gray.300");
 
   return (
-    <Center minH="60vh">
+    <Center minH="60vh" minW='100vw'>
       <Box
         w="full"
         maxW="container.md"

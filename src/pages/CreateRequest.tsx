@@ -78,8 +78,8 @@ const CreateRequest = () => {
   }
 
   return (
-    <Box maxW="container.md" mx="auto" p={4}>
-      <VStack spacing={8} align="stretch">
+    <Box display='flex' minW='100vw' minH='100vh'  p={10} alignItems={'center'} justifyContent='center'>
+      <VStack spacing={8} align="stretch" width='100%'  maxW={700}>
         <Heading>Create Transfer Request</Heading>
         <form onSubmit={handleSubmit}>
           <VStack spacing={4} align="stretch">
