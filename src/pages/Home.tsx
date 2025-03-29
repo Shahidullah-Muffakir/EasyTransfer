@@ -35,6 +35,7 @@ import { collection, query, orderBy, onSnapshot, deleteDoc, doc } from "firebase
 import { db } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { Link as RouterLink } from "react-router-dom";
+import { countries } from "../data/countries";
 
 interface TransferRequest {
   id: string;
@@ -111,12 +112,15 @@ const Home = () => {
     }
   };
 
+  const getCountryInfo = (code: string) => {
+    return countries.find((country) => country.code === code) || { name: code, flag: "" };
+  };
+
   return (
     <Box>
       <VStack spacing={8} align="stretch">
         <HStack justify="space-between">
           <Heading size="lg" color={headingColor}>Send & Receive Money</Heading>
-         
         </HStack>
 
         {!user && (
@@ -161,68 +165,72 @@ const Home = () => {
 
         <Divider />
 
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6} >
-          {requests.map((request) => (
-            <Card style={{maxWidth:'90%'}}key={request.id} bg={cardBg} border="1px" borderColor={borderColor} _hover={{ transform: "translateY(-2px)", boxShadow: "lg" }} transition="all 0.2s">
-              <CardHeader>
-                <HStack justify="space-between">
-                  <Heading size="md" color="blue.500">
-                    {request.amount.toLocaleString()}
-                    <Text as="span" fontSize="sm" color={textColor}>
-                      {request?.currency?.toUpperCase()}
-                    </Text>
-                  </Heading>
-                  <Badge colorScheme="blue" px={3} py={1}>
-                    {request.fromCountry}{" "}
-                    <Text as="span" fontSize="xs" color="gray.500">
-                      ({request?.fromCity?.substring(0,3)})
-                    </Text>
-                    → {request.toCountry}{" "}
-                    <Text as="span" fontSize="xs" color="gray.500">
-                      ({request.toCity?.substring(0,3)})
-                    </Text>
-                  </Badge>
-                </HStack>
-              </CardHeader>
-              <CardBody>
-                <VStack align="stretch" spacing={3}>
-                  {request.name && (
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+          {requests.map((request) => {
+            const fromCountry = getCountryInfo(request.fromCountry);
+            const toCountry = getCountryInfo(request.toCountry);
+            return (
+              <Card style={{maxWidth:'90%'}} key={request.id} bg={cardBg} border="1px" borderColor={borderColor} _hover={{ transform: "translateY(-2px)", boxShadow: "lg" }} transition="all 0.2s">
+                <CardHeader>
+                  <HStack justify="space-between">
+                    <Heading size="md" color="blue.500">
+                      {request.amount.toLocaleString()}
+                      <Text as="span" fontSize="sm" color={textColor}>
+                        {request?.currency?.toUpperCase()}
+                      </Text>
+                    </Heading>
+                    <Badge colorScheme="blue" px={3} py={1}>
+                      {fromCountry.flag} {fromCountry.code}{" "}
+                      <Text as="span" fontSize="xs" color="gray.500">
+                        ({request?.fromCity?.substring(0,3)})
+                      </Text>
+                      → {toCountry.flag} {toCountry.code}{" "}
+                      <Text as="span" fontSize="xs" color="gray.500">
+                        ({request.toCity?.substring(0,3)})
+                      </Text>
+                    </Badge>
+                  </HStack>
+                </CardHeader>
+                <CardBody>
+                  <VStack align="stretch" spacing={3}>
+                    {request.name && (
+                      <Text color={textColor}>
+                        <strong>Name:</strong> {request.name}
+                      </Text>
+                    )}
                     <Text color={textColor}>
-                      <strong>Name:</strong> {request.name}
+                      <strong>Contact:</strong> {request.phoneNumber}
                     </Text>
-                  )}
-                  <Text color={textColor}>
-                    <strong>Contact:</strong> {request.phoneNumber}
-                  </Text>
-                  <Text fontSize="sm" color="gray.500">
-                    Posted {request.createdAt.toLocaleDateString()}
-                  </Text>
-                  {user && user.uid === request.userId && (
-                    <HStack spacing={2}>
-                      <Button
-                        as={RouterLink}
-                        to={`/edit/${request.id}`}
-                        size="sm"
-                        colorScheme="blue"
-                        variant="outline"
-                        leftIcon={<EditIcon />}
-                      >
-                        Edit
-                      </Button>
-                      <IconButton
-                        aria-label="Delete request"
-                        icon={<DeleteIcon />}
-                        size="sm"
-                        colorScheme="red"
-                        variant="outline"
-                        onClick={() => handleDeleteClick(request)}
-                      />
-                    </HStack>
-                  )}
-                </VStack>
-              </CardBody>
-            </Card>
-          ))}
+                    <Text fontSize="sm" color="gray.500">
+                      Posted {request.createdAt.toLocaleDateString()}
+                    </Text>
+                    {user && user.uid === request.userId && (
+                      <HStack spacing={2}>
+                        <Button
+                          as={RouterLink}
+                          to={`/edit/${request.id}`}
+                          size="sm"
+                          colorScheme="blue"
+                          variant="outline"
+                          leftIcon={<EditIcon />}
+                        >
+                          Edit
+                        </Button>
+                        <IconButton
+                          aria-label="Delete request"
+                          icon={<DeleteIcon />}
+                          size="sm"
+                          colorScheme="red"
+                          variant="outline"
+                          onClick={() => handleDeleteClick(request)}
+                        />
+                      </HStack>
+                    )}
+                  </VStack>
+                </CardBody>
+              </Card>
+            );
+          })}
         </SimpleGrid>
 
         <Modal isOpen={isOpen} onClose={onClose}>
