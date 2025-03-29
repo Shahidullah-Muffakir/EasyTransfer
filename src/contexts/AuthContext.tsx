@@ -56,6 +56,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signIn = async (phoneNumber: string) => {
     try {
+      // Clear any existing reCAPTCHA
+      const container = document.getElementById('recaptcha-container');
+      if (container) {
+        container.innerHTML = '';
+      }
+
+      // Create new reCAPTCHA instance
       const appVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         size: 'invisible',
         callback: () => {

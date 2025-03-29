@@ -198,7 +198,7 @@ const Home = () => {
                     </Badge>
                   </HStack>
                 </CardHeader>
-                <CardBody>
+                <CardBody paddingTop={0}>
                   <VStack align="stretch" spacing={2}>
                     {request.name && (
                       <Text color={textColor}>
