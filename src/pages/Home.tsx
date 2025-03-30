@@ -37,6 +37,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { Link as RouterLink } from "react-router-dom";
 import { countries } from "../data/countries";
 import LoadingState from "../components/LoadingState";
+import Comments from "../components/Comments";
 
 interface TransferRequest {
   id: string;
@@ -234,6 +235,9 @@ const Home = () => {
                       </HStack>
                     )}
                   </VStack>
+                  <Box mt={4}>
+                    <Comments requestId={request.id} />
+                  </Box>
                 </CardBody>
               </Card>
             );

@@ -34,7 +34,15 @@ const Login = () => {
         duration: 5000,
         isClosable: true,
       });
-      navigate("/");
+      
+      // Check if there's a redirect URL stored
+      const redirectUrl = localStorage.getItem("redirectAfterLogin");
+      if (redirectUrl) {
+        localStorage.removeItem("redirectAfterLogin"); // Clear the stored URL
+        navigate(redirectUrl);
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       console.error("Error signing in with Google:", error);
       toast({
