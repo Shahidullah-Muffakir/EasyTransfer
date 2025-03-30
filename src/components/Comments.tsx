@@ -17,10 +17,25 @@ import {
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { collection, query, where, orderBy, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "../config/firebase";
 import { formatDistanceToNow } from "date-fns";
-import { ChatIcon, ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import {
+  ChatIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  DeleteIcon,
+} from "@chakra-ui/icons";
 
 interface Comment {
   id: string;
@@ -67,7 +82,7 @@ const Comments = ({ requestId }: CommentsProps) => {
 
     return () => unsubscribe();
   }, [requestId]);
-  console.log('commnets123', comments)
+  console.log("commnets123", comments);
 
   const handleSubmit = async () => {
     if (!user) {
@@ -120,11 +135,35 @@ const Comments = ({ requestId }: CommentsProps) => {
     }
   };
 
+  const handleDelete = async (commendId: string) => {
+    if (!commendId || !user) {
+      return;
+    }
+    try {
+      await deleteDoc(doc(db, "comments", commendId));
+      toast({
+        title: "Success",
+        description: "Comment deleted successfully",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete comment. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
     <Box>
-      <HStack 
-        justify="space-between" 
-        mb={4} 
+      <HStack
+        justify="space-between"
+        mb={4}
         cursor="pointer"
         onClick={() => setIsExpanded(!isExpanded)}
         _hover={{ color: "brand.500" }}
@@ -132,7 +171,7 @@ const Comments = ({ requestId }: CommentsProps) => {
         <HStack>
           <ChatIcon />
           <Text fontWeight="medium">
-            {comments.length} {comments.length === 1 ? 'Comment' : 'Comments'}
+            {comments.length} {comments.length === 1 ? "Comment" : "Comments"}
           </Text>
         </HStack>
         <IconButton
@@ -192,16 +231,33 @@ const Comments = ({ requestId }: CommentsProps) => {
                 transition="all 0.2s"
               >
                 <HStack spacing={3} align="start">
-                  <Avatar size="sm" name={comment.userName} src={comment.userPhoto} />
+                  <Avatar
+                    size="sm"
+                    name={comment.userName}
+                    src={comment.userPhoto}
+                  />
                   <Box flex={1}>
                     <HStack justify="space-between">
                       <Text fontWeight="medium">{comment.userName}</Text>
-                      <Tooltip label={comment.createdAt?.toDate().toLocaleString()}>
-                        <Text fontSize="sm" color={textColor}>
-                          {comment.createdAt && formatDistanceToNow(comment.createdAt.toDate(), { addSuffix: true })}
-                        </Text>
-                      </Tooltip>
+                      {user?.uid === comment.userId && (
+                        <IconButton
+                          aria-label="Delete comment"
+                          icon={<DeleteIcon />}
+                          size="sm"
+                          onClick={() => handleDelete(comment.id)}
+                        />
+                      )}
                     </HStack>
+                    <Tooltip
+                      label={comment.createdAt?.toDate().toLocaleString()}
+                    >
+                      <Text fontSize="sm" color={textColor}>
+                        {comment.createdAt &&
+                          formatDistanceToNow(comment.createdAt.toDate(), {
+                            addSuffix: true,
+                          })}
+                      </Text>
+                    </Tooltip>
                     <Text mt={1} color={textColor} whiteSpace="pre-wrap">
                       {comment.text}
                     </Text>
@@ -221,4 +277,4 @@ const Comments = ({ requestId }: CommentsProps) => {
   );
 };
 
-export default Comments; 
+export default Comments;
