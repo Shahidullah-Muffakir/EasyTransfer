@@ -54,7 +54,7 @@ const Comments = ({ requestId }: CommentsProps) => {
     const q = query(
       collection(db, "comments"),
       where("requestId", "==", requestId),
-      orderBy("createdAt", "desc")
+      orderBy("createdAt", "asc")
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
